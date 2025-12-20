@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>Notification.Contracts</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Mahir Hasan</Authors>
+    <Description>Shared event contracts for NotificationSystem</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+</Project>
