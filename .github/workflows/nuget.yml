@@ -4,15 +4,20 @@ on:
     tags:
     - 'v*'
 
+permissions:
+  contents: read
+  packages: write
+
 env:
-  PROJECT_PATH: 'Notification.Contracts/Notification.Contracts.csproj'
   PACKAGE_OUTPUT_PATH: ${{ github.workspace }}/output
   NUGET_SOURCE_URL: 'https://nuget.pkg.github.com/mahir-hs/index.json'
 
 jobs:
   deploy:
     name: 'Deploy'
-    runs-on: 'windows-latest'
+    runs-on: 'ubuntu-latest'
+    container: 'mcr.microsoft.com/dotnet/sdk:10.0-alpine'
+    
     steps:
     - name: 'Checkout'
       uses: 'actions/checkout@v4'
@@ -23,19 +28,19 @@ jobs:
         dotnet-version: '10.0.x'
 
     - name: 'Restore dependencies'
-      run: dotnet restore ${{ env.PROJECT_PATH }}
+      run: dotnet restore **/*.csproj
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: 'Build project'
-      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
+      run: dotnet build **/*.csproj --no-restore --configuration Release
 
     - name: 'Get version'
       id: version
       uses: 'battila7/get-version-action@v2'
 
     - name: 'Pack project'
-      run: dotnet pack ${{ env.PROJECT_PATH }} --no-restore --no-build --configuration Release --include-symbols -p:PackageVersion=${{ steps.version.outputs.version-without-v }} -o ${{ env.PACKAGE_OUTPUT_PATH }}
+      run: dotnet pack **/*.csproj --no-restore --no-build --configuration Release --include-symbols -p:PackageVersion=${{ steps.version.outputs.version-without-v }} -o ${{ env.PACKAGE_OUTPUT_PATH }}
 
     - name: 'Push package'
       run: dotnet nuget push "${{ env.PACKAGE_OUTPUT_PATH }}/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} -s ${{ env.NUGET_SOURCE_URL }} --skip-duplicate
